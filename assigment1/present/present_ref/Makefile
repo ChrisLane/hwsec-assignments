@@ -36,7 +36,7 @@ INCLUDES = -I$(SUPPORT_FILE_DIRECTORY) -I$(COMMON_DIR)
 OUTDIR = build
 
 # define flags
-CFLAGS = -I $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -g -O3 -save-temps -Wall -Wunused $(INCLUDES) 
+CFLAGS = -I $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -g -O3 -save-temps -Wall -Wunused $(INCLUDES)
 ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS = -L $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map
 #######################################
@@ -68,7 +68,7 @@ DEPEND = $(SOURCES:.c=.d)
 OBJECTS = $(addprefix $(OUTDIR)/,$(notdir $(SOURCES:.c=.o)))
 
 # default: build hex file and TI TXT file
-all: $(OUTDIR)/$(TARGET).hex 
+all: $(OUTDIR)/$(TARGET).hex
 
 # TI TXT file
 #$(OUTDIR)/%.txt: $(OUTDIR)/%.hex
@@ -88,7 +88,7 @@ $(OUTDIR)/$(TARGET).elf: $(OBJECTS)
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
 	@echo "Compiling $<"
 	@$(CC) -c $(CFLAGS) -o $@ $<
-	
+
 $(OUTDIR)/%.o: $(COMMON_DIR)/%.c | $(OUTDIR)
 	@echo "Compiling $<"
 	@$(CC) -c $(CFLAGS) -o $@ $<
@@ -96,7 +96,7 @@ $(OUTDIR)/%.o: $(COMMON_DIR)/%.c | $(OUTDIR)
 $(OUTDIR)/%.o: $(COMMON_DIR)/sw_crypto/%.c | $(OUTDIR)
 	@echo "Compiling $<"
 	@$(CC) -c $(CFLAGS) -o $@ $<
-	
+
 # assembly listing
 %.lst: %.c
 	$(CC) -c $(ASFLAGS) -Wa,-anlhd $< > $@
@@ -108,12 +108,12 @@ $(OUTDIR):
 # remove build artifacts and executables
 clean:
 	-$(RM) $(OUTDIR)/*
-	
+
 # Flash
-program: $(OUTDIR)/$(TARGET).hex 
+program: $(OUTDIR)/$(TARGET).hex
 	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
 
-test: 
+test:
 	@echo !!! Do not forget to program first !!!
 	python ./test_against_testvectors.py
 
