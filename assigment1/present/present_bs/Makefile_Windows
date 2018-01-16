@@ -1,0 +1,120 @@
+GCC_DIR=/cygdrive/c/ti/gcc/bin
+SUPPORT_FILE_DIRECTORY=C:/ti/gcc/include
+COMMON_DIR=../driverlib
+
+# MSP430 Makefile
+# #####################################
+#
+# Part of the uCtools project
+# uctools.github.com
+#
+#######################################
+# user configuration:
+#######################################
+
+# TARGET: name of the output file
+TARGET = main
+
+# MCU: part number to build for
+MCU = msp430fr5969
+
+# SOURCES: list of input source sources
+SOURCES = main.c
+SOURCES += $(COMMON_DIR)/uart_fifo.c
+SOURCES += $(COMMON_DIR)/eusci_a_uart.c
+SOURCES += $(COMMON_DIR)/gpio.c
+SOURCES += $(COMMON_DIR)/cs.c
+SOURCES += $(COMMON_DIR)/pmm.c
+SOURCES += $(COMMON_DIR)/wdt_a.c
+SOURCES += $(COMMON_DIR)/timer_a.c
+SOURCES += $(COMMON_DIR)/crypto.c
+
+# INCLUDES: list of includes, by default, use Includes directory
+INCLUDES = -I$(SUPPORT_FILE_DIRECTORY) -I$(COMMON_DIR)
+
+# OUTDIR: directory to use for output
+OUTDIR = build
+
+# define flags
+CFLAGS = -I $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -g -O3 -save-temps -Wall -Wunused $(INCLUDES) 
+ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
+LDFLAGS = -L $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map
+#######################################
+# end of user configuration
+#######################################
+
+#######################################
+# binaries
+#######################################
+CC      	= $(GCC_DIR)/msp430-elf-gcc
+LD      	= $(GCC_DIR)/msp430-elf-ld
+AR      	= $(GCC_DIR)/msp430-elf-ar
+AS      	= $(GCC_DIR)/msp430-elf-gcc
+GASP    	= $(GCC_DIR)/msp430-elf-gasp
+NM      	= $(GCC_DIR)/msp430-elf-nm
+OBJCOPY 	= $(GCC_DIR)/msp430-elf-objcopy
+SIZE 	    = $(GCC_DIR)/msp430-elf-size
+MAKETXT 	= srec_cat
+UNIX2DOS	= unix2dos
+RM      	= rm -f
+MKDIR		= mkdir -p
+FLASHER		= ../MSP430Flasher/MSP430Flasher.exe
+#######################################
+
+# file that includes all dependencies
+DEPEND = $(SOURCES:.c=.d)
+
+# list of object files, placed in the build directory regardless of source path
+OBJECTS = $(addprefix $(OUTDIR)/,$(notdir $(SOURCES:.c=.o)))
+
+# default: build hex file and TI TXT file
+all: $(OUTDIR)/$(TARGET).hex 
+
+# TI TXT file
+#$(OUTDIR)/%.txt: $(OUTDIR)/%.hex
+#	$(MAKETXT) -O $@ -TITXT $< -I
+#	$(UNIX2DOS) $(OUTDIR)/$(TARGET).txt
+
+# intel hex file
+$(OUTDIR)/%.hex: $(OUTDIR)/%.elf
+	$(OBJCOPY) -O ihex $< $@
+	$(SIZE) $@
+
+# elf file
+$(OUTDIR)/$(TARGET).elf: $(OBJECTS)
+	@echo "Linking ..."
+	@$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
+
+$(OUTDIR)/%.o: %.c | $(OUTDIR)
+	@echo "Compiling $<"
+	@$(CC) -c $(CFLAGS) -o $@ $<
+	
+$(OUTDIR)/%.o: $(COMMON_DIR)/%.c | $(OUTDIR)
+	@echo "Compiling $<"
+	@$(CC) -c $(CFLAGS) -o $@ $<
+
+$(OUTDIR)/%.o: $(COMMON_DIR)/sw_crypto/%.c | $(OUTDIR)
+	@echo "Compiling $<"
+	@$(CC) -c $(CFLAGS) -o $@ $<
+	
+# assembly listing
+%.lst: %.c
+	$(CC) -c $(ASFLAGS) -Wa,-anlhd $< > $@
+
+# create the output directory
+$(OUTDIR):
+	$(MKDIR) $(OUTDIR)
+
+# remove build artifacts and executables
+clean:
+	-$(RM) $(OUTDIR)/*
+	
+# Flash
+program: $(OUTDIR)/$(TARGET).hex 
+	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
+
+test: 
+	@echo !!! Do not forget to program first !!!
+	python ./test_against_testvectors.py
+
+.PHONY: all clean
