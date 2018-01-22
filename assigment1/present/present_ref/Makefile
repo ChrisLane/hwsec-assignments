@@ -1,5 +1,5 @@
-GCC_DIR=/opt/ti/bin/
-SUPPORT_FILE_DIRECTORY=/opt/ti/include/
+GCC_DIR=/opt/ti/bin
+SUPPORT_FILE_DIRECTORY=/opt/ti/include
 COMMON_DIR=../driverlib
 
 # MSP430 Makefile
@@ -113,8 +113,8 @@ clean:
 program: $(OUTDIR)/$(TARGET).hex
 	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
 
-test:
-	@echo !!! Do not forget to program first !!!
-	python ./test_against_testvectors.py
+test: all
+	@echo "Testing ..."
+	python2 ./test_against_testvectors.py
 
 .PHONY: all clean
