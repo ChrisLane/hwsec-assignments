@@ -6,7 +6,7 @@
 #include <driverlib.h>
 
 // Define basic parameters
-#define CRYPTO_IN_SIZE  8 	// Present has 64-bit blocks
+#define CRYPTO_IN_SIZE  8   // Present has 64-bit blocks
 #define CRYPTO_KEY_SIZE 10  // Present has 80-bit key
 #define CRYPTO_OUT_SIZE 8   // Present has 64-bit blocks
 
