@@ -113,7 +113,7 @@ clean:
 program: $(OUTDIR)/$(TARGET).hex
 	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
 
-test: all
+test: program
 	@echo "Testing ..."
 	python2 ./test_against_testvectors.py
 
