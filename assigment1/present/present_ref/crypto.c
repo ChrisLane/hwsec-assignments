@@ -1,7 +1,11 @@
 #include "crypto.h"
+#include <stdbool.h>
 
-static void add_round_key(uint8_t pt[CRYPTO_IN_SIZE], uint8_t key[CRYPTO_KEY_SIZE]) {
-    /// INSERT YOUR CODE HERE ///
+static void add_round_key(uint8_t pt[CRYPTO_IN_SIZE], const uint8_t key[CRYPTO_KEY_SIZE]) {
+    // XOR the state (pt) with the round key
+    for (uint8_t i = 0; i < CRYPTO_IN_SIZE; i++) {
+        pt[i] ^= key[i];
+    }
 }
 
 static const uint8_t sbox[16] = {
@@ -9,11 +13,29 @@ static const uint8_t sbox[16] = {
 };
 
 static void sbox_layer(uint8_t s[CRYPTO_IN_SIZE]) {
-    /// INSERT YOUR CODE HERE ///
+    for (uint8_t i = 0; i < CRYPTO_IN_SIZE; i++) {
+        int ln = s[0] & 0xf;
+        int un = (s[0] >> 4) & 0xf;
+        s[0] = sbox[ln] | (sbox[un] << 4);
+    }
+}
+
+static bool get_bit(uint8_t a, uint8_t bit) {
+    return (bool) ((a >> bit) & 0x1);
+}
+
+static int copy_bit(int out, int pos, bool v) {
+    out &= (1 << pos);
+    out |= (v << pos);
+    return out;
 }
 
 static void pbox_layer(uint8_t s[CRYPTO_IN_SIZE]) {
-    /// INSERT YOUR CODE HERE ///
+    for (uint8_t i = 0; i < 63; i++) {
+        bool tmp = get_bit(s[i], i);
+        int j = (i / 4) + (i % 4) * 16;
+        copy_bit(s[i], j, tmp);
+    }
 }
 
 static void update_round_key(uint8_t key[CRYPTO_KEY_SIZE], const uint8_t r) {

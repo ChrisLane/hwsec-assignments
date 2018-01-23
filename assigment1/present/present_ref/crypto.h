@@ -4,6 +4,7 @@
 #include <msp430.h>
 #include <string.h>
 #include <driverlib.h>
+#include <stdint.h>
 
 // Define basic parameters
 #define CRYPTO_IN_SIZE  8   // Present has 64-bit blocks
