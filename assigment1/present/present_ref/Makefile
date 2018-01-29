@@ -111,6 +111,7 @@ program: $(OUTDIR)/$(TARGET).hex
 	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
 
 test: program
+	sleep 2
 	@echo "Testing ..."
 	python2 ./test_against_testvectors.py
 
