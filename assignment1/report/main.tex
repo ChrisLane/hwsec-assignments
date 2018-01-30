@@ -2,18 +2,18 @@
 \usepackage[utf8]{inputenc}
 
 \title{Assignment 1: Implementation Report}
-\author{Joe Groocock    \\ \texttt{\normalsize ???????}
+\author{Joe Groocock    \\ \texttt{\normalsize 1467414}
     \and Chris Lane     \\ \texttt{\normalsize 1435876}
 }
 
 \begin{document}
 \maketitle
 
-\section{PRESENT}
-\subsection{Reference Implementation}
+\section{PRESENT}\label{sec:present}
+\subsection{Reference Implementation}\label{subsec:referenceImplementation}
 % Give average number of cycles per PRESENT execution and the throughput in cycles per bit
 
-\subsection{Optimised Implementation}
+\subsection{Optimised Implementation}\label{subsec:optimisedImplementation}
 % FOREACH: Optimisation
     % Describe optimisation used
 
@@ -23,7 +23,10 @@
 
 % Give average number of cycles per optimised PRESENT execution and the throughput in cycles per bit
 
-\subsection{Bitslicing Implementation}
+\subsection{Bitslicing Implementation}\label{subsec:bitslicingImplementation}
+% Optimisations
+    % Remove need to bitshift in sbox lookup by modifying sbox values
+
 % FOREACH: Optimisation
     % Describe optimisation used
 
@@ -33,16 +36,16 @@
 
 % Give average number of cycles per optimised PRESENT (keep in mind, 16 instances in parallel) execution and the throughput in cycles per bit
 
-\section{Long Numbers}
+\section{Long Numbers}\label{sec:longnumbers}
 
-\section{Pen-and-Paper Problems}
+\section{Pen-and-Paper Problems}\label{sec:penandpaperproblems}
 
-\subsection{ANF}
+\subsection{ANF}\label{subsec:anf}
 
-\subsection{Long Number Arithmetic}
+\subsection{Long Number Arithmetic}\label{subsec:longnumberarithmetic}
 
-\subsubsection{Addition}
+\subsubsection{Addition}\label{subsubsec:addition}
 
-\subsubsection{Multiplication}
+\subsubsection{Multiplication}\label{subsubsec:multiplication}
 
 \end{document}
