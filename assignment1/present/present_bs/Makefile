@@ -1,5 +1,5 @@
-GCC_DIR=/opt/ti/bin/
-SUPPORT_FILE_DIRECTORY=/opt/ti/include/
+GCC_DIR=/opt/ti/bin
+SUPPORT_FILE_DIRECTORY=/opt/ti/include
 COMMON_DIR=../driverlib
 
 # MSP430 Makefile
@@ -36,7 +36,7 @@ INCLUDES = -I$(SUPPORT_FILE_DIRECTORY) -I$(COMMON_DIR)
 OUTDIR = build
 
 # define flags
-CFLAGS = -I $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -g -O3 -save-temps -Wall -Wunused $(INCLUDES)
+CFLAGS  = -mmcu=$(MCU) -std=c11 -g -Ofast -save-temps -Wall -Wunused $(INCLUDES)
 ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS = -L $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map
 #######################################
@@ -83,19 +83,16 @@ $(OUTDIR)/%.hex: $(OUTDIR)/%.elf
 # elf file
 $(OUTDIR)/$(TARGET).elf: $(OBJECTS)
 	@echo "Linking ..."
-	@$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
+	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
 
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
-	@echo "Compiling $<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(OUTDIR)/%.o: $(COMMON_DIR)/%.c | $(OUTDIR)
-	@echo "Compiling $<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(OUTDIR)/%.o: $(COMMON_DIR)/sw_crypto/%.c | $(OUTDIR)
-	@echo "Compiling $<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 # assembly listing
 %.lst: %.c
@@ -113,8 +110,9 @@ clean:
 program: $(OUTDIR)/$(TARGET).hex
 	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
 
-test:
-	@echo !!! Do not forget to program first !!!
-	python ./test_against_testvectors.py
+test: program
+	sleep 2
+	@echo "Testing ..."
+	python2 ./test_against_testvectors.py
 
 .PHONY: all clean
