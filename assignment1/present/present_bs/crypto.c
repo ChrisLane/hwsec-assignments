@@ -6,13 +6,17 @@
  * @param state_bs  Output: Bitsliced state
  */
 static void enslice(const uint8_t pt[CRYPTO_IN_SIZE * BITSLICE_WIDTH], bs_reg_t state_bs[CRYPTO_IN_SIZE_BIT]) {
-    /// INSERT YOUR CODE HERE ///
+    for (int i = 0; i < CRYPTO_IN_SIZE_BIT; ++i) {
+        for (int j = 0; j < BITSLICE_WIDTH; ++j) {
+            state_bs[i] |= (pt[i / 8] & 0x1) << j;
+        }
+    }
 }
 
 /**
  * Bring bitsliced buffer into normal form
- * @param state_bs Input: Bitsliced state
- * @param pt Output: state_bs in normal form
+ * @param state_bs  Input: Bitsliced state
+ * @param pt        Output: state_bs in normal form
  */
 static void unslice(const bs_reg_t state_bs[CRYPTO_IN_SIZE_BIT], uint8_t pt[CRYPTO_IN_SIZE * BITSLICE_WIDTH]) {
     /// INSERT YOUR CODE HERE ///
@@ -27,7 +31,10 @@ static void unslice(const bs_reg_t state_bs[CRYPTO_IN_SIZE_BIT], uint8_t pt[CRYP
  */
 static void update_round_key(uint8_t key[CRYPTO_KEY_SIZE], const uint8_t r) {
     const uint8_t sbox[16] = {
-            0xC, 0x5, 0x6, 0xB, 0x9, 0x0, 0xA, 0xD, 0x3, 0xE, 0xF, 0x8, 0x4, 0x7, 0x1, 0x2,
+            0xC, 0x5, 0x6, 0xB,
+            0x9, 0x0, 0xA, 0xD,
+            0x3, 0xE, 0xF, 0x8,
+            0x4, 0x7, 0x1, 0x2,
     };
 
     uint8_t tmp = 0;
