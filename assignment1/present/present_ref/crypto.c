@@ -56,6 +56,18 @@ static void sbox_layer(uint8_t s[CRYPTO_IN_SIZE]) {
     }
 }
 
+bool getbit(const uint8_t word, const uint8_t bit) {
+    return (uint8_t) ((word >> bit) & 0x1);
+}
+
+void setbit(uint8_t *const word, const uint8_t bit) {
+    *word |= (1 << bit);
+}
+
+void clrbit(uint8_t *const word, const uint8_t bit) {
+    *word &= ~(1 << bit);
+}
+
 /**
  * Get values of applying the pbox to the state.
  * 
@@ -64,17 +76,21 @@ static void sbox_layer(uint8_t s[CRYPTO_IN_SIZE]) {
 static void pbox_layer(uint8_t s[CRYPTO_IN_SIZE]) {
     // Initialise output to 0
     uint8_t out[CRYPTO_IN_SIZE] = {0};
-    
+
     // Loop through size of input
     for (uint8_t byt = 0; byt < CRYPTO_IN_SIZE; byt++) {
         // Loop through each bit in the byt
         for (uint8_t bit = 0; bit < 8; bit++) {
             // Get pbox result after inputting current bit
-            uint8_t output_bit = pbox[(byt << 3) + bit];
+            uint8_t output_bit = pbox[(byt * 8) + bit];
             // Take byte from input, shifting by current bit number, using bitwise AND
-            uint8_t input_bit = (uint8_t) ((s[byt] >> bit) & 0x1);
+            bool input_bit = getbit(s[byt], bit);
             // Move input bit to output bit position and set output
-            out[output_bit >> 3] |= input_bit << (output_bit % 8);
+            if (input_bit) {
+                setbit(&out[output_bit / 8], (output_bit % 8));
+            } else {
+                clrbit(&out[output_bit / 8], (output_bit % 8));
+            }
         }
     }
 
