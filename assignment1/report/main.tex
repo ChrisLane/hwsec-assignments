@@ -12,19 +12,28 @@
 \section{PRESENT}\label{sec:present}
 \subsection{Reference Implementation}\label{subsec:referenceImplementation}
 % Give average number of cycles per PRESENT execution and the throughput in cycles per bit
+Average number of cycles: 191125
 
 \subsection{Optimised Implementation}\label{subsec:optimisedImplementation}
 % Optimisations
     % Inline getbit, setbit and clrbit operations
-    % Use dedicated assembly instructions for setting and clearing bits on MSP430 (BIS, BIC)
+    % Use bit shifting instead of divide/multiply
     % Combine upper and lower nibble lookup in one big sbox
+    % Use dedicated assembly instructions for setting and clearing bits on MSP430 (BIS, BIC)
 
 % FOREACH: Optimisation
     % Describe optimisation used
-
     % Describe effect of optimisation
-
     % Before/After comparison of optimisation
+
+We inlined the getBit, setBit and clrBit functions, this has the effect of reducing the number of push and pop instructions required for passing arguments, return address etc.
+Where before we we getting an average of 191125 cycles per PRESENT execution, after the optimisation, we got an average of 140593 cycles.
+
+Another place that we were able to optimise our PRESENT implementation was by bitshifting instead of dividing and multiplying where possible. By bitshifting instead of using multiply and division, we reduce the number of clockcycles required by the processor.
+This optimisation gave us an average of 123232 clock cycles, as compared to the result from the inlining optimisation.
+
+By creating a larger S-box of concatenated lower and upper nibbles, we can perform both lower and upper nibble lookups at once. A single lookup removes the need to split each byte into lower and upper nibbles and then concatenate the result of S-box lookups, reducing the number of instructions required in the execution.
+The average number of cycles after this optimisation was 115824.
 
 % Give average number of cycles per optimised PRESENT execution and the throughput in cycles per bit
 
