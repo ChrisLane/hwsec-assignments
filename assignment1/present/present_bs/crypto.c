@@ -1,24 +1,6 @@
 #include "crypto.h"
 
 /**
- * Bring normal buffer into bitsliced form
- * @param pt        Input: state_bs in normal form
- * @param state_bs  Output: Bitsliced state
- */
-static void enslice(const uint8_t pt[CRYPTO_IN_SIZE * BITSLICE_WIDTH], bs_reg_t state_bs[CRYPTO_IN_SIZE_BIT]) {
-    /// INSERT YOUR CODE HERE ///
-}
-
-/**
- * Bring bitsliced buffer into normal form
- * @param state_bs Input: Bitsliced state
- * @param pt Output: state_bs in normal form
- */
-static void unslice(const bs_reg_t state_bs[CRYPTO_IN_SIZE_BIT], uint8_t pt[CRYPTO_IN_SIZE * BITSLICE_WIDTH]) {
-    /// INSERT YOUR CODE HERE ///
-}
-
-/**
  * Perform next key schedule step
  * @param key   Key register to be updated
  * @param r     Round counter
@@ -27,7 +9,10 @@ static void unslice(const bs_reg_t state_bs[CRYPTO_IN_SIZE_BIT], uint8_t pt[CRYP
  */
 static void update_round_key(uint8_t key[CRYPTO_KEY_SIZE], const uint8_t r) {
     const uint8_t sbox[16] = {
-            0xC, 0x5, 0x6, 0xB, 0x9, 0x0, 0xA, 0xD, 0x3, 0xE, 0xF, 0x8, 0x4, 0x7, 0x1, 0x2,
+            0xC, 0x5, 0x6, 0xB,
+            0x9, 0x0, 0xA, 0xD,
+            0x3, 0xE, 0xF, 0x8,
+            0x4, 0x7, 0x1, 0x2,
     };
 
     uint8_t tmp = 0;
@@ -62,11 +47,35 @@ void crypto_func(uint8_t pt[CRYPTO_IN_SIZE * BITSLICE_WIDTH], uint8_t key[CRYPTO
     bs_reg_t state[CRYPTO_IN_SIZE_BIT];
     bs_reg_t bb[CRYPTO_IN_SIZE_BIT];
 
-    // Bring into bitslicing form
-    enslice(pt, state);
+    // Bring into bitslicing form (enslice)
+    for (int i1 = 0; i1 < CRYPTO_IN_SIZE_BIT; ++i1) {
+        for (int j = 0; j < BITSLICE_WIDTH; ++j) {
+            state[i1] |= (pt[i1 / 8] & 0x1) << j;
+        }
+    }
 
-    /// INSERT YOUR CODE HERE ///
+    // S-Box
+    for (int i = 0; i < CRYPTO_IN_SIZE_BIT; i += 4) {
+        // y0 = x0 + (x1 · x2) + x2 + x3
+        bb[i + 0] = state[0] ^ (state[1] & state[2]) ^ state[2] ^ state[3];
+        // y1 = (x0 · x2 · x1) + (x0 · x3 · x1) + (x3 · x1) + x1 + (x0 · x2 · x3) + (x2 · x3) + x3
+        bb[i + 1] = (state[0] & state[2] & state[1]) ^ (state[0] & state[3] & state[1]) ^ (state[3] & state[1]) ^ state[1] ^ (
+                state[0] & state[2] & state[3]) ^ (state[2] & state[3]) ^ state[3];
+        // y2 = (x0 · x1) + (x0 · x3 · x1) + (x3 · x1) + x2 + (x0 · x3) + (x0 · x2 · x3) + x3 + 1
+        bb[i + 2] = ~((state[0] & state[2]) ^ (state[0] & state[3] & state[1]) ^ (state[3] & state[1]) ^ state[2] ^ (
+                state[0] & state[3]) ^ (state[0] & state[2] & state[3]) ^ state[3]);
+        // y3 = (x1 · x2 · x0) + (x1 · x3 · x0) + (x2 · x3 · x0) + x0 + x1 + x1 · x2 + x3 + 1
+        bb[i + 3] = ~((state[1] & state[2] & state[0]) ^ (state[1] & state[3] & state[0]) ^ (state[2] & state[3] & state[0]) ^ state[0] ^ state[1] ^ state[1] & state[2] ^ state[3]);
+    }
 
-    // Convert back to normal form
-    unslice(state, pt);
+    // P-Box
+    // {INSERT PBXXXXOOOOOOOOOOOOOOOOODDDDDDDDDDDDXXXXXXXXX HERE
+
+
+    // Convert back to normal form (unslice)
+    for (int i2 = 0; i2 < CRYPTO_IN_SIZE_BIT; ++i2) {
+        for (int j1 = 0; j1 < BITSLICE_WIDTH; ++j1) {
+            pt[i2] |= (state[i2 / 8] & 0x1) << j1;
+        }
+    }
 }
