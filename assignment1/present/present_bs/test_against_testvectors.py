@@ -108,7 +108,7 @@ for tv in range(TV_KEY_COUNT):
 
     print "encrypt RX: " + buf2hex(rx)  
     print 
-    print "=== Cycle count = " + str(duration) + " = " + str(duration/CPU_FREQUENCY) + " s ==="
+    print "=== Cycle count = " + str(duration) + " (" + str(duration / 16) + "/block) = " + str(duration/CPU_FREQUENCY) + " s ==="
     print 
     
     # Get 16 ciphertext blocks
