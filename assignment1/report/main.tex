@@ -1,5 +1,11 @@
 \documentclass[11pt, a4paper]{article}
 \usepackage[utf8]{inputenc}
+\usepackage{xlop}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\graphicspath{{images/}}
 
 \title{Assignment 1: Implementation Report}
 \author{Joe Groocock    \\ \texttt{\normalsize 1467414}
@@ -55,11 +61,52 @@ The average number of cycles after this optimisation was 115824.
 \section{Pen-and-Paper Problems}\label{sec:penandpaperproblems}
 
 \subsection{ANF}\label{subsec:anf}
+\includegraphics[width=\textwidth]{anf}
 
 \subsection{Long Number Arithmetic}\label{subsec:longnumberarithmetic}
 
 \subsubsection{Addition}\label{subsubsec:addition}
+\opadd{12345}{54321}\qquad
+
+In this operation, 5 base 10 addition operations are required, or 9 if you include addition of 0 carries.
 
 \subsubsection{Multiplication}\label{subsubsec:multiplication}
+\begin{tabular}{cccccccccc}
+    1 & 2 & 3 & 4 & 5 & \times& 1 & 2 & 3 & 4 &
+      &   &   &   &   &       &   &   & 2 & 0 &
+      &   &   &   &   &       &   & 1 & 6 &   &
+      &   &   &   &   &       & 1 & 2 &   &   &
+      &   &   &   &   &       & 8 &   &   &   &
+      &   &   &   &   &     4 &   &   &   &   &
+    \midrule
+      &   &   &   &   &     4 & 9 & 3 & 8 & 0 &
+    \midrule
+      &   &   &   &   &       &   & 1 & 5 &   &
+      &   &   &   &   &       & 1 & 2 &   &   &
+      &   &   &   &   &     6 & 9 &   &   &   &
+      &   &   &   & 3 &       &   &   &   &   &
+      &   &   &   & _1&    _1 &   & _1&   &   &
+    \midrule
+      &   &   &   & 4 &     1 & 9 & 7 & 3 & 0 &
+    \midrule
+      &   &   &   &   &       & 1 & 0 &   &   &
+      &   &   &   &   &       & 8 &   &   &   &
+      &   &   &   &   &     6 &   &   &   &   &
+      &   &   &   & 4 &       &   &   &   &   &
+      &   &   & 2 &   &    _1 &   &   &   &   &
+    \midrule
+      &   &   & 2 & 8 &     8 & 8 & 7 & 3 & 0 &
+    \midrule
+      &   &   &   &   &       & 5 &   &   &   &
+      &   &   &   &   &     4 &   &   &   &   &
+      &   &   &   & 3 &       &   &   &   &   &
+      &   &   & 2 &   &       &   &   &   &   &
+      &   & 1 & _1& _1&    _1 &   &   &   &   &
+    \midrule
+      &   & 1 & 5 & 2 &     3 & 3 & 7 & 3 & 0 &
+    \midrule
+\end{tabular}
+\\\\
+In this operation, 20 elementary base 10 multiplications are required.
 
 \end{document}
