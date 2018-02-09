@@ -36,7 +36,7 @@ INCLUDES = -I$(SUPPORT_FILE_DIRECTORY) -I$(COMMON_DIR)
 OUTDIR = build
 
 # define flags
-CFLAGS  = -mmcu=$(MCU) -std=c11 -g -Ofast -save-temps -Wall -Wunused $(INCLUDES)
+CFLAGS  = -mmcu=$(MCU) -std=c11 -Ofast -save-temps -Wall -Wunused $(INCLUDES)
 ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS = -L $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map
 #######################################
