@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 import serial
 
 LN_SIZE_BIT = 256
@@ -14,7 +14,7 @@ COM_PORT = '/dev/ttyACM1'
 COM_PORT = '/dev/ttyUSB0'
 BAUDRATE = 9600
 
-GROUP_NUMBER = 0 # Group 1 has number 0, etc.
+GROUP_NUMBER = 1 # Group 1 has number 0, etc.
 
 # higher timeout due to slow computation ...
 ser = serial.Serial(COM_PORT, BAUDRATE, timeout=5)
