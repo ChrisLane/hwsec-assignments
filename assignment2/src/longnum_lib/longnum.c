@@ -43,31 +43,71 @@
 #include <stdbool.h>
 #include <sys/param.h>
 
+
+// ln_equal and ln_equal_zero could both be computed recursively which would
+// be more readable however it would be slower unless tail-recursion is optimised
+// out into a loop, as used below.
+
 ln_limb_t ln_equal(const ln_limb_t* a, const ln_limb_t* b, const size_t n) {
-    return 0;
+    bool unequal = false;
+    for (ln_limb_t i = 0; i < n; i++)
+        unequal |= (a[i] != b[i]);
+
+    // false is 0, true is 1
+    // cast to shut up the compiler
+    return (uint8_t) unequal;
 }
 
 ln_limb_t ln_equal_zero(const ln_limb_t* a, const size_t n) {
-    return 0;
+    bool nonzero = false;
+    for (ln_limb_t i = 0; i < n; i++)
+        nonzero |= (a[i] != 0);
+
+    // false is 0
+    // cast to shut up the compiler
+    return (uint8_t) nonzero;
 }
 
 int8_t ln_compare(const ln_limb_t* a, const ln_limb_t* b, const size_t n) {
+    for (ln_limb_t i = 0; i < n; i++)
+        if (a[i] != b[i])
+            return (a[i] > b[i]) ? 1U : -1;
     return 0;
 }
 
 size_t ln_from_bytes(const uint8_t* in, const size_t in_cnt, ln_limb_t* a,
                      const size_t n) {
-    return 0;
+
+    // Don't assume the bytes fit into given limbs
+    size_t maxlimbs = MIN(in_cnt / BYTES_PER_LIMB, n);
+
+    // for n limbs
+    for (size_t i = 0; i < maxlimbs * BYTES_PER_LIMB; i++) {
+        ln_limb_t *limb = &a[i / BYTES_PER_LIMB];
+        ((uint8_t *)limb)[i % BYTES_PER_LIMB] = in[i];
+    }
+    return maxlimbs;
 }
 
 void ln_clear(ln_limb_t* a, const size_t n) {
+    for (ln_limb_t i = 0; i < n; i++)
+        a[i] = 0;
 }
 
 void ln_assign(ln_limb_t* a, const ln_limb_t* b, const size_t n) {
+    for (ln_limb_t i = 0; i < n; i++)
+        a[i] = b[i];
 }
 
 ln_limb_t ln_add(const ln_limb_t* a, const ln_limb_t* b, ln_limb_t* c, const size_t n) {
-    return 0;
+    uint8_t carry = 0;
+    for (int i = 0; i < n; ++i) {
+        c[i] = a[i] + b[i] + carry;
+        // Carry bit is set if result is less than operands.
+        // The result will be smaller if the number has overflowed.
+        carry = (uint8_t) ((c[i] <= a[i] && c[i] <= b[i]) ? 1 : 0);
+    }
+    return carry;
 }
 
 ln_limb_t ln_sub(const ln_limb_t* a, const ln_limb_t* b, ln_limb_t* c, const size_t n) {
