@@ -1,4 +1,6 @@
 #include "crypto.h"
+#include "../longnum_lib/longnum.h"
+
 
 void crypto_func(ln_limb_t ln_s[CRYPTO_IN_SIZE_WORDS], ln_limb_t ln_n[CRYPTO_IN_SIZE_WORDS], ln_limb_t ln_mu[CRYPTO_IN_SIZE_WORDS + 1], const ln_limb_t exp, ln_limb_t ln_r[CRYPTO_IN_SIZE_WORDS])
 {

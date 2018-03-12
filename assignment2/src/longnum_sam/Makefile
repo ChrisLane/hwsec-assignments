@@ -1,7 +1,8 @@
-GCC_DIR=/opt/ti/bin/
-SUPPORT_FILE_DIRECTORY=/opt/ti/include/
+GCC_DIR=/opt/ti/bin
+SUPPORT_FILE_DIRECTORY=/opt/ti/include
 COMMON_DIR=../driverlib
 LN_DIR=../longnum_lib
+LN_LIB=liblongnum.a
 
 # MSP430 Makefile
 # #####################################
@@ -37,9 +38,9 @@ INCLUDES = -I$(SUPPORT_FILE_DIRECTORY) -I$(COMMON_DIR) -I$(LN_DIR)
 OUTDIR = build
 
 # define flags
-CFLAGS = -I $(SUPPORT_FILE_DIRECTORY) -mmcu=$(MCU) -O3 -save-temps -Wall -Wunused $(INCLUDES) 
+CFLAGS  = -mmcu=$(MCU) -std=c11 -g -Ofast -save-temps -Wall -Wunused $(INCLUDES)
 ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
-LDFLAGS = -L $(SUPPORT_FILE_DIRECTORY)  -L $(LN_DIR) -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map  -llongnum
+LDFLAGS = -L$(SUPPORT_FILE_DIRECTORY) -L$(LN_DIR) -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map -llongnum
 #######################################
 # end of user configuration
 #######################################
@@ -47,20 +48,23 @@ LDFLAGS = -L $(SUPPORT_FILE_DIRECTORY)  -L $(LN_DIR) -mmcu=$(MCU) -Wl,-Map=$(OUT
 #######################################
 # binaries
 #######################################
-CC      	= $(GCC_DIR)/msp430-elf-gcc
-LD      	= $(GCC_DIR)/msp430-elf-ld
-AR      	= $(GCC_DIR)/msp430-elf-ar
-AS      	= $(GCC_DIR)/msp430-elf-gcc
-GASP    	= $(GCC_DIR)/msp430-elf-gasp
-NM      	= $(GCC_DIR)/msp430-elf-nm
+CC			= $(GCC_DIR)/msp430-elf-gcc
+LD			= $(GCC_DIR)/msp430-elf-ld
+AR			= $(GCC_DIR)/msp430-elf-ar
+AS			= $(GCC_DIR)/msp430-elf-gcc
+GASP		= $(GCC_DIR)/msp430-elf-gasp
+NM			= $(GCC_DIR)/msp430-elf-nm
 OBJCOPY 	= $(GCC_DIR)/msp430-elf-objcopy
-SIZE 	    = $(GCC_DIR)/msp430-elf-size
+SIZE		= $(GCC_DIR)/msp430-elf-size
 MAKETXT 	= srec_cat
 UNIX2DOS	= unix2dos
-RM      	= rm -f
+RM			= rm -f
 MKDIR		= mkdir -p
 FLASHER		= MSP430Flasher
 #######################################
+
+export CFLAGS ASFLAGS
+export CC LD AR AS GASP NM OBJCOPY SIZE MAKETXT UNIX2DOS FLASHER
 
 # file that includes all dependencies
 DEPEND = $(SOURCES:.c=.d)
@@ -69,7 +73,7 @@ DEPEND = $(SOURCES:.c=.d)
 OBJECTS = $(addprefix $(OUTDIR)/,$(notdir $(SOURCES:.c=.o)))
 
 # default: build hex file and TI TXT file
-all: $(OUTDIR)/$(TARGET).hex 
+all: $(OUTDIR)/$(TARGET).hex
 
 # TI TXT file
 #$(OUTDIR)/%.txt: $(OUTDIR)/%.hex
@@ -82,26 +86,21 @@ $(OUTDIR)/%.hex: $(OUTDIR)/%.elf
 	$(SIZE) $@
 
 # elf file
-$(OUTDIR)/$(TARGET).elf: $(OBJECTS)
-	@echo "Linking ..."
-	@$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
+$(OUTDIR)/$(TARGET).elf: $(OBJECTS) $(LN_LIB)
+	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
 
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
-	@echo "Compiling $<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
-	
+	$(CC) -c $(CFLAGS) -o $@ $<
+
 $(OUTDIR)/%.o: $(COMMON_DIR)/%.c | $(OUTDIR)
-	@echo "Compiling $<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
-	
-$(OUTDIR)/%.o: $(LN_DIR)/%.c | $(OUTDIR)
-	@echo "Compiling $<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(OUTDIR)/%.o: $(COMMON_DIR)/sw_crypto/%.c | $(OUTDIR)
-	@echo "Compiling $<"
-	@$(CC) -c $(CFLAGS) -o $@ $<
-	
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(LN_LIB): $(LN_DIR)
+	$(MAKE) -C $(LN_DIR) $(LN_LIB)
+
 # assembly listing
 %.lst: %.c
 	$(CC) -c $(ASFLAGS) -Wa,-anlhd $< > $@
@@ -112,14 +111,14 @@ $(OUTDIR):
 
 # remove build artifacts and executables
 clean:
-	-$(RM) $(OUTDIR)/*
-	
+	$(RM) -r $(OUTDIR) *.i *.s
+	$(MAKE) -C $(LN_DIR) clean
+
 # Flash
 program: $(OUTDIR)/$(TARGET).hex 
 	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
 
 test: 
 	@echo !!! Do not forget to program first !!!
-	python ./test_against_testvectors.py
+	python2 test_against_testvectors.py
 
-.PHONY: all clean
