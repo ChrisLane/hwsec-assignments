@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 # For path sanitisation in find_key_candidates
 from os.path import basename,splitext
 
+from aes_sbox import *
+
 # Takes an array of traces, in np.array 
 # form and plots them on a single graph
 def plot_traces(traces):
