@@ -2,7 +2,6 @@ GCC_DIR=/opt/ti/bin
 SUPPORT_FILE_DIRECTORY=/opt/ti/include
 COMMON_DIR=../driverlib
 LN_DIR=../longnum_lib
-LN_LIB=liblongnum.a
 
 # MSP430 Makefile
 # #####################################
@@ -86,7 +85,7 @@ $(OUTDIR)/%.hex: $(OUTDIR)/%.elf
 	$(SIZE) $@
 
 # elf file
-$(OUTDIR)/$(TARGET).elf: $(OBJECTS) $(LN_LIB)
+$(OUTDIR)/$(TARGET).elf: $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
 
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
@@ -115,7 +114,8 @@ clean:
 program: $(OUTDIR)/$(TARGET).hex 
 	$(FLASHER) -g -n $(MCU) -w $(OUTDIR)/$(TARGET).hex -v -z [RESET,VCC]
 
-test: 
-	@echo !!! Do not forget to program first !!!
+test: program
+	sleep 2
+	@echo "Testing..."
 	python2 test_against_testvectors.py
 
