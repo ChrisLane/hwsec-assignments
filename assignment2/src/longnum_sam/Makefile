@@ -112,7 +112,7 @@ $(OUTDIR):
 # remove build artifacts and executables
 clean:
 	$(RM) -r $(OUTDIR) *.i *.s
-	$(MAKE) -C $(LN_DIR) clean
+#	$(MAKE) -C $(LN_DIR) clean
 
 # Flash
 program: $(OUTDIR)/$(TARGET).hex 
