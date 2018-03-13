@@ -98,9 +98,6 @@ $(OUTDIR)/%.o: $(COMMON_DIR)/%.c | $(OUTDIR)
 $(OUTDIR)/%.o: $(COMMON_DIR)/sw_crypto/%.c | $(OUTDIR)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(LN_LIB): $(LN_DIR)
-	$(MAKE) -C $(LN_DIR) $(LN_LIB)
-
 # assembly listing
 %.lst: %.c
 	$(CC) -c $(ASFLAGS) -Wa,-anlhd $< > $@
